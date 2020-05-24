@@ -229,7 +229,7 @@ int b3d_clip_against_plane(b3d_vec_t plane, b3d_vec_t norm, b3d_triangle_t in, b
     return 0;
 }
 
-void rasterize(int ax, int ay, float az, int bx, int by, float bz, int cx, int cy, float cz, uint32_t c) {
+void b3d_rasterise(int ax, int ay, float az, int bx, int by, float bz, int cx, int cy, float cz, uint32_t c) {
     float t = 0;
     float ft = 0.0f;
     if (ay == by && ay == cy) return;
@@ -361,7 +361,7 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
 
         for (int i = 0; i < queue_count; ++i) {
             b3d_triangle_t * t = &queue[i];
-            rasterize(
+            b3d_rasterise(
                 t->p[0].x, t->p[0].y, t->p[0].w,
                 t->p[1].x, t->p[1].y, t->p[1].w,
                 t->p[2].x, t->p[2].y, t->p[2].w,
