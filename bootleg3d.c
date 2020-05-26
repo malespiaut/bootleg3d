@@ -229,17 +229,16 @@ int b3d_clip_against_plane(b3d_vec_t plane, b3d_vec_t norm, b3d_triangle_t in, b
     return 0;
 }
 
-void b3d_rasterise(int ax, int ay, float az, int bx, int by, float bz, int cx, int cy, float cz, uint32_t c) {
-    int t = 0;
-    float ft = 0.0f;
+void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, uint32_t c) {
+    float t = 0.0f;
     if (ay == by && ay == cy) return;
-    if (ay > by) t = ax, ax = bx, bx = t, t = ay, ay = by, by = t, ft = az, az = bz, bz = ft;
-    if (ay > cy) t = ax, ax = cx, cx = t, t = ay, ay = cy, cy = t, ft = az, az = cz, cz = ft;
-    if (by > cy) t = bx, bx = cx, cx = t, t = by, by = cy, cy = t, ft = bz, bz = cz, cz = ft;
+    if (ay > by) t = ax, ax = bx, bx = t, t = ay, ay = by, by = t, t = az, az = bz, bz = t;
+    if (ay > cy) t = ax, ax = cx, cx = t, t = ay, ay = cy, cy = t, t = az, az = cz, cz = t;
+    if (by > cy) t = bx, bx = cx, cx = t, t = by, by = cy, cy = t, t = bz, bz = cz, cz = t;
     float line_count = cy - ay;
     float alpha_step = 1.0f / line_count;
     float alpha = 0.0f;
-    for (int i = 0; i < line_count; i++) {
+    for (float i = 0; i < line_count; i++) {
         float second_half = i > by - ay || by == ay;
         float segment_height = second_half ? cy - by : by - ay;
         float beta = (i - (second_half ? by - ay : 0)) / segment_height;
@@ -247,12 +246,12 @@ void b3d_rasterise(int ax, int ay, float az, int bx, int by, float bz, int cx, i
         float Az = az + (cz - az) * alpha;
         float Bx = second_half ? bx + (cx - bx) * beta : ax + (bx - ax) * beta;
         float Bz = second_half ? bz + (cz - bz) * beta : az + (bz - az) * beta;
-        if (Ax > Bx) ft = Ax, Ax = Bx, Bx = ft, ft = Az, Az = Bz, Bz = ft;
+        if (Ax > Bx) t = Ax, Ax = Bx, Bx = t, t = Az, Az = Bz, Bz = t;
         float steps = (Bx - Ax) < 1 ? 1 : (Bx - Ax);
         float depth_step = (Bz - Az) / steps;
         float d = Az;
-        for (float x = Ax; x <= Bx; ++x) {
-            int p = round(x + (ay + i) * b3d_width);
+        for (float x = Ax; x < Bx; ++x) {
+            int p = x + (ay + i) * b3d_width;
             if (d < b3d_depth[p]) {
                 b3d_pixels[p] = c;
                 b3d_depth[p] = d;
@@ -317,14 +316,20 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
             projected.p[0].x *= b3d_width  / 2.0f;
             projected.p[0].y += 1.0f;
             projected.p[0].y *= b3d_height / 2.0f;
+            projected.p[0].z += 1.0f;
+            projected.p[0].z *= 1024.0f;
             projected.p[1].x += 1.0f;
             projected.p[1].x *= b3d_width  / 2.0f;
             projected.p[1].y += 1.0f;
             projected.p[1].y *= b3d_height / 2.0f;
+            projected.p[1].z += 1.0f;
+            projected.p[1].z *= 1024.0f;
             projected.p[2].x += 1.0f;
             projected.p[2].x *= b3d_width  / 2.0f;
             projected.p[2].y += 1.0f;
             projected.p[2].y *= b3d_height / 2.0f;
+            projected.p[2].z += 1.0f;
+            projected.p[2].z *= 1024.0f;
 
             queue[queue_count++] = projected;
         }
@@ -362,9 +367,9 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
         for (int i = 0; i < queue_count; ++i) {
             b3d_triangle_t * t = &queue[i];
             b3d_rasterise(
-                t->p[0].x, t->p[0].y, t->p[0].z,
-                t->p[1].x, t->p[1].y, t->p[1].z,
-                t->p[2].x, t->p[2].y, t->p[2].z,
+                t->p[0].x, roundf(t->p[0].y), t->p[0].z,
+                t->p[1].x, roundf(t->p[1].y), t->p[1].z,
+                t->p[2].x, roundf(t->p[2].y), t->p[2].z,
                 c
             );
         }
