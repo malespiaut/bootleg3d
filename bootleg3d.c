@@ -231,7 +231,7 @@ int b3d_clip_against_plane(b3d_vec_t plane, b3d_vec_t norm, b3d_triangle_t in, b
 
 void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, uint32_t c) {
     float t = 0.0f;
-    if (ay == by && ay == cy) return;
+    ay = floor(ay), by = floor(by), cy = floor(cy);
     if (ay > by) t = ax, ax = bx, bx = t, t = ay, ay = by, by = t, t = az, az = bz, bz = t;
     if (ay > cy) t = ax, ax = cx, cx = t, t = ay, ay = cy, cy = t, t = az, az = cz, cz = t;
     if (by > cy) t = bx, bx = cx, cx = t, t = by, by = cy, cy = t, t = bz, bz = cz, cz = t;
@@ -367,9 +367,9 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
         for (int i = 0; i < queue_count; ++i) {
             b3d_triangle_t * t = &queue[i];
             b3d_rasterise(
-                t->p[0].x, roundf(t->p[0].y), t->p[0].z,
-                t->p[1].x, roundf(t->p[1].y), t->p[1].z,
-                t->p[2].x, roundf(t->p[2].y), t->p[2].z,
+                t->p[0].x, t->p[0].y, t->p[0].z,
+                t->p[1].x, t->p[1].y, t->p[1].z,
+                t->p[2].x, t->p[2].y, t->p[2].z,
                 c
             );
         }
