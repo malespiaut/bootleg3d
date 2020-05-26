@@ -230,7 +230,7 @@ int b3d_clip_against_plane(b3d_vec_t plane, b3d_vec_t norm, b3d_triangle_t in, b
 }
 
 void b3d_rasterise(int ax, int ay, float az, int bx, int by, float bz, int cx, int cy, float cz, uint32_t c) {
-    float t = 0;
+    int t = 0;
     float ft = 0.0f;
     if (ay == by && ay == cy) return;
     if (ay > by) t = ax, ax = bx, bx = t, t = ay, ay = by, by = t, ft = az, az = bz, bz = ft;
@@ -242,21 +242,21 @@ void b3d_rasterise(int ax, int ay, float az, int bx, int by, float bz, int cx, i
     for (int i = 0; i < line_count; i++) {
         float second_half = i > by - ay || by == ay;
         float segment_height = second_half ? cy - by : by - ay;
-        float beta = (float) (i - (second_half ? by - ay : 0)) / segment_height;
+        float beta = (i - (second_half ? by - ay : 0)) / segment_height;
         float Ax = ax + (cx - ax) * alpha;
         float Az = az + (cz - az) * alpha;
         float Bx = second_half ? bx + (cx - bx) * beta : ax + (bx - ax) * beta;
         float Bz = second_half ? bz + (cz - bz) * beta : az + (bz - az) * beta;
-        if (Ax > Bx) t = Ax, Ax = Bx, Bx = t, ft = Az, Az = Bz, Bz = ft;
+        if (Ax > Bx) ft = Ax, Ax = Bx, Bx = ft, ft = Az, Az = Bz, Bz = ft;
         float steps = (Bx - Ax) < 1 ? 1 : (Bx - Ax);
         float depth_step = (Bz - Az) / steps;
         float d = Az;
-        for (int x = Ax; x < Bx; ++x) {
-            int p = x + (ay + i) * b3d_width;
+        for (float x = Ax; x <= Bx; ++x) {
+            int p = round(x + (ay + i) * b3d_width);
             if (d < b3d_depth[p]) {
                 b3d_pixels[p] = c;
                 b3d_depth[p] = d;
-            }
+            } // else b3d_pixels[p] = 0xff0000; // overdraw test
             d += depth_step;
         }
         alpha += alpha_step;
@@ -362,9 +362,9 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
         for (int i = 0; i < queue_count; ++i) {
             b3d_triangle_t * t = &queue[i];
             b3d_rasterise(
-                t->p[0].x, t->p[0].y, t->p[0].w,
-                t->p[1].x, t->p[1].y, t->p[1].w,
-                t->p[2].x, t->p[2].y, t->p[2].w,
+                t->p[0].x, t->p[0].y, t->p[0].z,
+                t->p[1].x, t->p[1].y, t->p[1].z,
+                t->p[2].x, t->p[2].y, t->p[2].z,
                 c
             );
         }
@@ -396,7 +396,7 @@ void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float
     for (int i = 0; i < b3d_width * b3d_height; ++i) b3d_pixels[i] = 0;
     b3d_depth = depth_buffer;
     for (int i = 0; i < b3d_width * b3d_height; ++i) b3d_depth[i] = 1000.0f;
-    b3d_model = b3d_mat_trans(0.0f, -3.0f, 5.0f);
+    b3d_reset();
     b3d_proj = b3d_mat_proj(fov, b3d_height/(float)b3d_width, 0.01f, 1000.0f);
     b3d_set_camera(0, 0, 0, 0, 0, 0);
 }
