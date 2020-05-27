@@ -14,13 +14,11 @@ int main() {
 
     uint32_t * pixel_buffer = malloc(width * height * sizeof(float));
     float * depth_buffer = malloc(width * height * sizeof(float));
-
     b3d_init(pixel_buffer, depth_buffer, width, height, 70);
-
-    char * file_name = "moai.obj";
 
     // Barebones .obj file loader. (this wont work for most obj files,
     // you should use one of the many good existing obj loaders out there)
+    char * file_name = "moai.obj";
     int vert_count = 0;
     float * triangles = NULL;
     {
@@ -62,7 +60,7 @@ int main() {
         vert_count = ti;
     }
 
-    printf("Loaded %d triangles from file '%s'.\n", vert_count, file_name);
+    printf("Loaded %d triangles from file '%s'.\n", vert_count / 9, file_name);
 
     b3d_set_camera(0, 1, -2, 0, 0, 0);
 
@@ -73,11 +71,9 @@ int main() {
         }
 
         float t = SDL_GetTicks() * 0.001f;
-
         b3d_clear();
-
         b3d_reset();
-        b3d_rotate_y(t);
+        b3d_rotate_y(t * 0.3);
 
         for (int i = 0; i < vert_count; i += 9) {
             uint32_t c = (160 + (i % 64)) & 0xff;

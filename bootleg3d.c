@@ -230,8 +230,8 @@ int b3d_clip_against_plane(b3d_vec_t plane, b3d_vec_t norm, b3d_triangle_t in, b
 }
 
 void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, uint32_t c) {
+    ay = floorf(ay), by = floorf(by), cy = floorf(cy);
     float t = 0.0f;
-    ay = floor(ay), by = floor(by), cy = floor(cy);
     if (ay > by) t = ax, ax = bx, bx = t, t = ay, ay = by, by = t, t = az, az = bz, bz = t;
     if (ay > cy) t = ax, ax = cx, cx = t, t = ay, ay = cy, cy = t, t = az, az = cz, cz = t;
     if (by > cy) t = bx, bx = cx, cx = t, t = by, by = cy, cy = t, t = bz, bz = cz, cz = t;
@@ -250,12 +250,13 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
         float steps = (Bx - Ax) < 1 ? 1 : (Bx - Ax);
         float depth_step = (Bz - Az) / steps;
         float d = Az;
-        for (float x = Ax; x < Bx; ++x) {
+        Bx = floorf(Bx);
+        for (int x = Ax; x < Bx; ++x) {
             int p = x + (ay + i) * b3d_width;
             if (d < b3d_depth[p]) {
                 b3d_pixels[p] = c;
                 b3d_depth[p] = d;
-            } // else b3d_pixels[p] = 0xff0000; // overdraw test
+            }
             d += depth_step;
         }
         alpha += alpha_step;
@@ -398,9 +399,8 @@ void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float
     b3d_width = w;
     b3d_height = h;
     b3d_pixels = pixel_buffer;
-    for (int i = 0; i < b3d_width * b3d_height; ++i) b3d_pixels[i] = 0;
     b3d_depth = depth_buffer;
-    for (int i = 0; i < b3d_width * b3d_height; ++i) b3d_depth[i] = 1000.0f;
+    b3d_clear();
     b3d_reset();
     b3d_proj = b3d_mat_proj(fov, b3d_height/(float)b3d_width, 0.01f, 1000.0f);
     b3d_set_camera(0, 0, 0, 0, 0, 0);
