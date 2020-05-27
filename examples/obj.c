@@ -2,7 +2,7 @@
 #define BOOTLEG3D_IMPLEMENTATION
 #include "bootleg3d.c"
 
-int main() {
+int main(int argument_count, char ** arguments) {
     int width = 800;
     int height = 600;
 
@@ -19,6 +19,7 @@ int main() {
     // Barebones .obj file loader. (this wont work for most obj files,
     // you should use one of the many good existing obj loaders out there)
     char * file_name = "moai.obj";
+    if (argument_count == 2) file_name = arguments[1];
     int vert_count = 0;
     float * triangles = NULL;
     {
@@ -42,6 +43,7 @@ int main() {
         rewind(obj_file);
         int a, b, c;
         while (fgets(line, 128, obj_file)) {
+            // TODO: Handle faces with vertex/normal data (by ignoring the extra stuff).
             if (sscanf(line, " f %d %d %d ", &a, &b, &c)) {
                 a--, b--, c--;
                 triangles = realloc(triangles, (ti+9) * sizeof(triangles[0]));
@@ -62,7 +64,18 @@ int main() {
 
     printf("Loaded %d triangles from file '%s'.\n", vert_count / 9, file_name);
 
-    b3d_set_camera(0, 1, -2, 0, 0, 0);
+    float min_y = FLT_MAX;
+    float max_y = FLT_MIN;
+    for (int i = 1; i < vert_count; i += 3) {
+        if (triangles[i] > max_y) max_y = triangles[i];
+        if (triangles[i] < min_y) min_y = triangles[i];
+    }
+    // Centre the model along the y axis.
+    float y_offset = (min_y + max_y) / 2;
+    // Move backwards in based on how tall the model is.
+    float z_offset = -((max_y - min_y) + 0.1f);
+
+    b3d_set_camera(0, y_offset, z_offset, 0, 0, 0);
 
     while (1) {
         SDL_Event event;
@@ -76,7 +89,9 @@ int main() {
         b3d_rotate_y(t * 0.3);
 
         for (int i = 0; i < vert_count; i += 9) {
-            uint32_t c = (160 + (i % 64)) & 0xff;
+            float avg_y = (triangles[i + 1] + triangles[i + 4] + triangles[i + 7]) / 3;
+            float brightness = (avg_y - min_y) / max_y;
+            uint32_t c = 50 + (int)(brightness * 200) & 0xff;
             b3d_triangle(
                 triangles[i + 0], triangles[i + 1], triangles[i + 2],
                 triangles[i + 3], triangles[i + 4], triangles[i + 5],
