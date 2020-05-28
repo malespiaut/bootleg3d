@@ -8,10 +8,6 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // Public API
 void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float fov);
 void b3d_clear();
@@ -29,10 +25,6 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
 extern int b3d_width, b3d_height;
 extern uint32_t * b3d_pixels;
 extern float * b3d_depth;
-
-#ifdef __cplusplus
-}
-#endif
 
 #ifdef BOOTLEG3D_IMPLEMENTATION
 
