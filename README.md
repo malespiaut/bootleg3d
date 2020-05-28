@@ -38,7 +38,6 @@ Add `#define BOOTLEG3D_IMPLEMENTATION` before ONE of your includes to compile wi
 
 ## TODO
 + Draw a buffer of triangles in one call
-+ Rasteriser optimisations and improvements
 + More examples
 + Depth-only rendering
 + Wire-frame rendering
