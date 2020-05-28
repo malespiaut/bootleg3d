@@ -19,11 +19,10 @@ int main(int argument_count, char ** arguments) {
     SDL_Window * window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
     SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
     SDL_Texture * texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
-    SDL_SetRelativeMouseMode(1);
 
-    uint32_t * pixel_buffer = malloc(width * height * sizeof(float));
-    float * depth_buffer = malloc(width * height * sizeof(float));
-    b3d_init(pixel_buffer, depth_buffer, width, height, 70);
+    uint32_t * pixels = malloc(width * height * sizeof(pixels[0]));
+    float * depth = malloc(width * height * sizeof(depth[0]));
+    b3d_init(pixels, depth, width, height, 70);
 
     // Barebones .obj file loader.
     char * file_name = "moai.obj";
@@ -127,7 +126,7 @@ int main(int argument_count, char ** arguments) {
 
         SDL_Delay(1);
         SDL_RenderClear(renderer);
-        SDL_UpdateTexture(texture, NULL, pixel_buffer, width * sizeof(uint32_t));
+        SDL_UpdateTexture(texture, NULL, pixels, width * sizeof(uint32_t));
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
     }
