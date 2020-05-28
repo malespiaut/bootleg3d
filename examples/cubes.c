@@ -48,9 +48,6 @@ int main() {
 
         b3d_clear();
 
-        // // Move the camera along the z axis slowly, and reset back to zero when z reaches 100.
-        // b3d_set_camera(0, 0, 0, 0, 0, 0);
-
         for (int i = 0; i < cube_count; ++i) {
             // Reset transformations back to the origin.
             b3d_reset();
