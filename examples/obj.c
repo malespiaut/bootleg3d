@@ -4,7 +4,7 @@
     it will load a file (moai.obj) provided in this examples folder.
 
     Right now the '.obj' loading code will fail on models containing
-    texture coordinates or vertex normals.
+    non-triangular faces.
 */
 
 #include <SDL2/SDL.h>
@@ -36,13 +36,13 @@ int main(int argument_count, char ** arguments) {
         float * vertices = NULL;
         FILE * obj_file = fopen(file_name, "r");
         if (!obj_file) {
-            perror("Failed to load file 'moai.obj' \nerror");
+            printf("Failed to load file '%s'.\n", file_name);
             exit(1);
         }
         char line[128];
         float x, y, z;
         while (fgets(line, 128, obj_file)) {
-            if (sscanf(line, " v %f %f %f ", &x, &y, &z)) {
+            if (line[0] == 'v' && sscanf(line, " v %f %f %f ", &x, &y, &z)) {
                 vertices = realloc(vertices, (vi+3) * sizeof(vertices[0]));
                 vertices[vi++] = x;
                 vertices[vi++] = y;
@@ -52,19 +52,28 @@ int main(int argument_count, char ** arguments) {
         rewind(obj_file);
         int a, b, c;
         while (fgets(line, 128, obj_file)) {
-            // TODO: Handle faces with vertex/normal data (by ignoring the extra stuff).
-            if (sscanf(line, " f %d %d %d ", &a, &b, &c)) {
-                a--, b--, c--;
-                triangles = realloc(triangles, (ti+9) * sizeof(triangles[0]));
-                triangles[ti++] = vertices[(a*3)+0];
-                triangles[ti++] = vertices[(a*3)+1];
-                triangles[ti++] = vertices[(a*3)+2];
-                triangles[ti++] = vertices[(b*3)+0];
-                triangles[ti++] = vertices[(b*3)+1];
-                triangles[ti++] = vertices[(b*3)+2];
-                triangles[ti++] = vertices[(c*3)+0];
-                triangles[ti++] = vertices[(c*3)+1];
-                triangles[ti++] = vertices[(c*3)+2];
+            if (line[0] == 'f') {
+                // Erase texture and normal information.
+                for (int i = 0; i < 128; ++i) {
+                    if (line[i] == '/') {
+                        while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0') {
+                            line[i++] = ' ';
+                        }
+                    }
+                }
+                if (sscanf(line, " f %d %d %d ", &a, &b, &c)) {
+                    a--, b--, c--;
+                    triangles = realloc(triangles, (ti+9) * sizeof(triangles[0]));
+                    triangles[ti++] = vertices[(a*3)+0];
+                    triangles[ti++] = vertices[(a*3)+1];
+                    triangles[ti++] = vertices[(a*3)+2];
+                    triangles[ti++] = vertices[(b*3)+0];
+                    triangles[ti++] = vertices[(b*3)+1];
+                    triangles[ti++] = vertices[(b*3)+2];
+                    triangles[ti++] = vertices[(c*3)+0];
+                    triangles[ti++] = vertices[(c*3)+1];
+                    triangles[ti++] = vertices[(c*3)+2];
+                }
             }
         }
         free(vertices);
@@ -82,8 +91,15 @@ int main(int argument_count, char ** arguments) {
     }
     // Centre the model along the y axis.
     float y_offset = (min_y + max_y) / 2;
-    // Move backwards based on how tall the model is.
-    float z_offset = -((max_y - min_y) + 0.1f);
+
+    // Figure out how wide the model is (along x and z axis).
+    float max_xz = FLT_MIN;
+    for (int i = 0; i < vert_count; i += 3) {
+        if (triangles[i+0] > max_xz) max_xz = fabsf(triangles[i+0]);
+        if (triangles[i+2] > max_xz) max_xz = fabsf(triangles[i+2]);
+    }
+    // Move backwards based on how tall and wide the model is.
+    float z_offset = -((max_y - min_y) + max_xz);
 
     b3d_set_camera(0, y_offset, z_offset, 0, 0, 0);
 
