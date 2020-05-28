@@ -238,21 +238,21 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
     float line_count = cy - ay;
     float alpha_step = 1.0f / line_count;
     float alpha = 0.0f;
-    for (float i = 0; i < line_count; i++) {
-        float second_half = i > by - ay || by == ay;
-        float segment_height = second_half ? cy - by : by - ay;
-        float beta = (i - (second_half ? by - ay : 0)) / segment_height;
+    float segment_height = by - ay;
+    float beta_step = 1.0f / segment_height;
+    float beta = 0.0f;
+    for (float y = ay; y < by; y++) {
         float Ax = ax + (cx - ax) * alpha;
         float Az = az + (cz - az) * alpha;
-        float Bx = second_half ? bx + (cx - bx) * beta : ax + (bx - ax) * beta;
-        float Bz = second_half ? bz + (cz - bz) * beta : az + (bz - az) * beta;
+        float Bx = ax + (bx - ax) * beta;
+        float Bz = az + (bz - az) * beta;
         if (Ax > Bx) t = Ax, Ax = Bx, Bx = t, t = Az, Az = Bz, Bz = t;
         float steps = (Bx - Ax) < 1 ? 1 : (Bx - Ax);
         float depth_step = (Bz - Az) / steps;
         float d = Az;
         Bx = floorf(Bx);
         for (int x = Ax; x < Bx; ++x) {
-            int p = x + (ay + i) * b3d_width;
+            int p = x + y * b3d_width;
             if (d < b3d_depth[p]) {
                 b3d_pixels[p] = c;
                 b3d_depth[p] = d;
@@ -260,6 +260,31 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
             d += depth_step;
         }
         alpha += alpha_step;
+        beta += beta_step;
+    }
+    segment_height = cy - by;
+    beta_step = 1.0f / segment_height;
+    beta = 0.0f;
+    for (float y = by; y < cy; y++) {
+        float Ax = ax + (cx - ax) * alpha;
+        float Az = az + (cz - az) * alpha;
+        float Bx = bx + (cx - bx) * beta;
+        float Bz = bz + (cz - bz) * beta;
+        if (Ax > Bx) t = Ax, Ax = Bx, Bx = t, t = Az, Az = Bz, Bz = t;
+        float steps = (Bx - Ax) < 1 ? 1 : (Bx - Ax);
+        float depth_step = (Bz - Az) / steps;
+        float d = Az;
+        Bx = floorf(Bx);
+        for (int x = Ax; x < Bx; ++x) {
+            int p = x + y * b3d_width;
+            if (d < b3d_depth[p]) {
+                b3d_pixels[p] = c;
+                b3d_depth[p] = d;
+            }
+            d += depth_step;
+        }
+        alpha += alpha_step;
+        beta += beta_step;
     }
 }
 
