@@ -1,6 +1,6 @@
 # bootleg3D
 
-A software renderer for simple 3D graphics in a single header file, written in C99. It can do around 50k triangles (1080p@60hz) on an old MacBook, has a simple API, and a small code base. It might be particularly useful for retro graphics (N64, PS1, etc.) at lower resolutions with lower polygon counts. Some example programs are provided that use SDL2.
+A software renderer for simple 3D graphics in a single file, written in C99. It can do around 50k triangles (1080p@60hz) on an old MacBook, has a simple API, and a small code base. It might be particularly useful for retro graphics (N64, PS1, etc.) at lower resolutions with lower polygon counts. Some example programs are provided that use SDL2.
 
 <img src='examples/cubes.png' width='320'><img src='examples/obj.png' width='320'>
 
