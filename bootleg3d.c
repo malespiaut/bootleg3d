@@ -293,71 +293,62 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
 */
 
 void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, uint32_t c) {
-    b3d_triangle_t t = (b3d_triangle_t){ .p = { {ax,ay,az,1}, {bx,by,bz,1}, {cx,cy,cz,1} } };
-    b3d_triangle_t projected, transformed, viewed;
+    b3d_triangle_t t = (b3d_triangle_t){{{ax,ay,az,1},{bx,by,bz,1},{cx,cy,cz,1}}};
+    t.p[0] = b3d_mat_mul_vec(b3d_model, t.p[0]);
+    t.p[1] = b3d_mat_mul_vec(b3d_model, t.p[1]);
+    t.p[2] = b3d_mat_mul_vec(b3d_model, t.p[2]);
 
-    transformed.p[0] = b3d_mat_mul_vec(b3d_model, t.p[0]);
-    transformed.p[1] = b3d_mat_mul_vec(b3d_model, t.p[1]);
-    transformed.p[2] = b3d_mat_mul_vec(b3d_model, t.p[2]);
-
-    b3d_vec_t line_a = b3d_vec_sub(transformed.p[1], transformed.p[0]);
-    b3d_vec_t line_b = b3d_vec_sub(transformed.p[2], transformed.p[0]);
-
+    b3d_vec_t line_a = b3d_vec_sub(t.p[1], t.p[0]);
+    b3d_vec_t line_b = b3d_vec_sub(t.p[2], t.p[0]);
     b3d_vec_t normal = b3d_vec_cross(line_a, line_b);
     normal = b3d_vec_norm(normal);
-
-    b3d_vec_t cam_ray = b3d_vec_sub(transformed.p[0], b3d_camera);
+    b3d_vec_t cam_ray = b3d_vec_sub(t.p[0], b3d_camera);
 
     if (b3d_vec_dot(normal, cam_ray) < 0.0f) {
-        viewed.p[0] = b3d_mat_mul_vec(b3d_view, transformed.p[0]);
-        viewed.p[1] = b3d_mat_mul_vec(b3d_view, transformed.p[1]);
-        viewed.p[2] = b3d_mat_mul_vec(b3d_view, transformed.p[2]);
+        t.p[0] = b3d_mat_mul_vec(b3d_view, t.p[0]);
+        t.p[1] = b3d_mat_mul_vec(b3d_view, t.p[1]);
+        t.p[2] = b3d_mat_mul_vec(b3d_view, t.p[2]);
 
         b3d_triangle_t clipped[2];
         int count = b3d_clip_against_plane(
             (b3d_vec_t){ 0.0f, 0.0f, 0.1f, 1.0f },
             (b3d_vec_t){ 0.0f, 0.0f, 1.0f, 1.0f },
-            viewed,
+            t,
             clipped
         );
 
-        // Queue of triangles for screen space clipping.
         b3d_triangle_t queue[16];
         int queue_count = 0;
 
         for (int n = 0; n < count; ++n) {
-            projected.p[0] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[0]);
-            projected.p[1] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[1]);
-            projected.p[2] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[2]);
-
-            projected.p[0] = b3d_vec_div(projected.p[0], projected.p[0].w);
-            projected.p[1] = b3d_vec_div(projected.p[1], projected.p[1].w);
-            projected.p[2] = b3d_vec_div(projected.p[2], projected.p[2].w);
-
-            projected.p[0].y *= -1.0f;
-            projected.p[1].y *= -1.0f;
-            projected.p[2].y *= -1.0f;
-
-            projected.p[0].x += 1.0f;
-            projected.p[0].x *= b3d_width  / 2.0f;
-            projected.p[0].y += 1.0f;
-            projected.p[0].y *= b3d_height / 2.0f;
-            projected.p[0].z += 1.0f;
-            projected.p[0].z *= 1024.0f;
-            projected.p[1].x += 1.0f;
-            projected.p[1].x *= b3d_width  / 2.0f;
-            projected.p[1].y += 1.0f;
-            projected.p[1].y *= b3d_height / 2.0f;
-            projected.p[1].z += 1.0f;
-            projected.p[1].z *= 1024.0f;
-            projected.p[2].x += 1.0f;
-            projected.p[2].x *= b3d_width  / 2.0f;
-            projected.p[2].y += 1.0f;
-            projected.p[2].y *= b3d_height / 2.0f;
-            projected.p[2].z += 1.0f;
-            projected.p[2].z *= 1024.0f;
-
-            queue[queue_count++] = projected;
+            t.p[0] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[0]);
+            t.p[1] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[1]);
+            t.p[2] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[2]);
+            t.p[0] = b3d_vec_div(t.p[0], t.p[0].w);
+            t.p[1] = b3d_vec_div(t.p[1], t.p[1].w);
+            t.p[2] = b3d_vec_div(t.p[2], t.p[2].w);
+            t.p[0].y *= -1.0f;
+            t.p[1].y *= -1.0f;
+            t.p[2].y *= -1.0f;
+            t.p[0].x += 1.0f;
+            t.p[0].x *= b3d_width  / 2.0f;
+            t.p[0].y += 1.0f;
+            t.p[0].y *= b3d_height / 2.0f;
+            t.p[0].z += 1.0f;
+            t.p[0].z *= 1024.0f;
+            t.p[1].x += 1.0f;
+            t.p[1].x *= b3d_width  / 2.0f;
+            t.p[1].y += 1.0f;
+            t.p[1].y *= b3d_height / 2.0f;
+            t.p[1].z += 1.0f;
+            t.p[1].z *= 1024.0f;
+            t.p[2].x += 1.0f;
+            t.p[2].x *= b3d_width  / 2.0f;
+            t.p[2].y += 1.0f;
+            t.p[2].y *= b3d_height / 2.0f;
+            t.p[2].z += 1.0f;
+            t.p[2].z *= 1024.0f;
+            queue[queue_count++] = t;
         }
 
         b3d_vec_t tp = { 0.0f, 0.5f, 0.0f, 1.0f };
