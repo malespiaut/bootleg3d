@@ -1,3 +1,12 @@
+/*
+    Loads a model from a '.obj' file and renders it using bootleg3d.
+    You can pass the path to a file as the first argument, otherwise
+    it will load a file (moai.obj) provided in this examples folder.
+
+    Right now the '.obj' loading code will fail on models containing
+    texture coordinates or vertex normals.
+*/
+
 #include <SDL2/SDL.h>
 #define BOOTLEG3D_IMPLEMENTATION
 #include "bootleg3d.c"
@@ -64,6 +73,7 @@ int main(int argument_count, char ** arguments) {
 
     printf("Loaded %d triangles from file '%s'.\n", vert_count / 9, file_name);
 
+    // Figure out how tall the model is.
     float min_y = FLT_MAX;
     float max_y = FLT_MIN;
     for (int i = 1; i < vert_count; i += 3) {
@@ -72,7 +82,7 @@ int main(int argument_count, char ** arguments) {
     }
     // Centre the model along the y axis.
     float y_offset = (min_y + max_y) / 2;
-    // Move backwards in based on how tall the model is.
+    // Move backwards based on how tall the model is.
     float z_offset = -((max_y - min_y) + 0.1f);
 
     b3d_set_camera(0, y_offset, z_offset, 0, 0, 0);
