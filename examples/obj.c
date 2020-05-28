@@ -25,8 +25,7 @@ int main(int argument_count, char ** arguments) {
     float * depth_buffer = malloc(width * height * sizeof(float));
     b3d_init(pixel_buffer, depth_buffer, width, height, 70);
 
-    // Barebones .obj file loader. (this wont work for most obj files,
-    // you should use one of the many good existing obj loaders out there)
+    // Barebones .obj file loader.
     char * file_name = "moai.obj";
     if (argument_count == 2) file_name = arguments[1];
     int vert_count = 0;
