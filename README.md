@@ -47,7 +47,3 @@ Add `#define BOOTLEG3D_IMPLEMENTATION` before ONE of your includes to compile wi
 + Maybe:
     - Texture mapping
     - Lighting
-
-There are some real low-hanging-fruit optimisations to be done, which should give a good improvement in speed, especially when paired with a buffer rendering API. Hoping to do this soon.
-
-(Last updated: May 2020)
