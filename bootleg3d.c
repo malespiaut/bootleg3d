@@ -323,11 +323,11 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
         }
         b3d_vec_t tp = { 0.0f, 0.5f, 0.0f, 1.0f };
         b3d_vec_t tn = { 0.0f, 1.0f, 0.0f, 1.0f };
-        b3d_vec_t bp = { 0.0f, (float)b3d_height - 1, 0.0f, 1.0f };
+        b3d_vec_t bp = { 0.0f, (float)b3d_height, 0.0f, 1.0f };
         b3d_vec_t bn = { 0.0f, -1.0f, 0.0f, 1.0f };
         b3d_vec_t lp = { 0.5f, 0.0f, 0.0f, 1.0f };
         b3d_vec_t ln = { 1.0f, 0.0f, 0.0f, 1.0f };
-        b3d_vec_t rp = { (float)b3d_width - 1, 0.0f, 0.0f, 1.0f };
+        b3d_vec_t rp = { (float)b3d_width, 0.0f, 0.0f, 1.0f };
         b3d_vec_t rn = { -1.0f, 0.0f, 0.0f, 1.0f };
         int triangles_to_clip = queue_count;
         for (int p = 0; p < 4; ++p) {
