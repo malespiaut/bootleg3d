@@ -132,6 +132,8 @@ int main(int argument_count, char ** arguments) {
             } else if (event.type == SDL_MOUSEMOTION) {
                 player_yaw -= event.motion.xrel * mouse_sensitivity;
                 player_pitch += event.motion.yrel * mouse_sensitivity;
+                if (player_pitch < -1.570796f) player_pitch = -1.57f;
+                if (player_pitch >  1.570796f) player_pitch =  1.57f;
             }
         }
 
@@ -151,6 +153,7 @@ int main(int argument_count, char ** arguments) {
         player_forward_speed *= 0.9f;
         player_strafe_speed *= 0.9f;
 
+        // Collision with world edge.
         if (player_x < -(world_size-boundary)) player_x = -world_size+boundary;
         if (player_x >  (world_size-boundary)) player_x =  world_size-boundary;
         if (player_z < -(world_size-boundary)) player_z = -world_size+boundary;
