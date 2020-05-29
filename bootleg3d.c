@@ -166,8 +166,7 @@ b3d_mat_t b3d_mat_point_at(b3d_vec_t pos, b3d_vec_t target, b3d_vec_t up) {
     b3d_vec_t forward = b3d_vec_sub(target, pos);
     forward = b3d_vec_norm(forward);
     b3d_vec_t a = b3d_vec_mul(forward, b3d_vec_dot(up, forward));
-    up = b3d_vec_sub(up, a);
-    up = b3d_vec_norm(up);
+    up = b3d_vec_norm(b3d_vec_sub(up, a));
     b3d_vec_t right = b3d_vec_cross(up, forward);
     return (b3d_mat_t){ .m = {
         [0][0] = right.x,   [0][1] = right.y,   [0][2] = right.z,   [0][3] = 0.0f,
@@ -375,8 +374,9 @@ void b3d_set_camera(float x, float y, float z, float xr, float yr, float zr) {
     b3d_vec_t up = { 0.0f, 1.0f, 0.0f, 1.0f };
     b3d_vec_t target = { 0.0f, 0.0f, 1.0f, 1.0f };
     up = b3d_mat_mul_vec(b3d_mat_rot_z(zr), up);
-    b3d_mat_t rotate = b3d_mat_mul(b3d_mat_rot_y(xr), b3d_mat_rot_x(yr));
-    target = b3d_vec_add(b3d_camera, b3d_mat_mul_vec(rotate, target));
+    target = b3d_mat_mul_vec(b3d_mat_rot_x(yr), target);
+    target = b3d_mat_mul_vec(b3d_mat_rot_y(xr), target);
+    target = b3d_vec_add(b3d_camera, target);
     b3d_view = b3d_mat_qinv(b3d_mat_point_at(b3d_camera, target, up));
 }
 
