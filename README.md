@@ -2,7 +2,8 @@
 
 A software renderer for simple 3D graphics in a single file, written in C99. The main goal is to provide a simple API, and to keep the code base small. It might be particularly useful for retro graphics (N64, PS1, etc.) at lower resolutions with lower polygon counts. Some example programs are provided that use SDL2.
 
-<img src='examples/cubes.png' width='320'><img src='examples/obj.png' width='320'>
+<img src='examples/fps.png' width='320'><img src='examples/obj.png' width='320'>
+<img src='examples/cubes.png' width='320'><img src='examples/cube.png' width='320'>
 
 ## Features
 
