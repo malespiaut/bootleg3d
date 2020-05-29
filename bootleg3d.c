@@ -17,7 +17,7 @@ void b3d_rotate_x(float angle);
 void b3d_rotate_y(float angle);
 void b3d_rotate_z(float angle);
 void b3d_scale(float x, float y, float z);
-void b3d_set_camera(float x, float y, float z, float xr, float yr, float zr);
+void b3d_set_camera(float x, float y, float z, float yaw, float pitch, float roll);
 void b3d_set_fov(float fov_in_degrees);
 void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, uint32_t c);
 
@@ -369,13 +369,13 @@ void b3d_translate(float x, float y, float z) { b3d_model = b3d_mat_mul(b3d_mode
 void b3d_scale(float x, float y, float z) { b3d_model = b3d_mat_mul(b3d_model, b3d_mat_scale(x, y, z)); }
 void b3d_set_fov(float fov_in_degrees) { b3d_proj = b3d_mat_proj(fov_in_degrees, b3d_height/(float)b3d_width, 0.01f, 1000.0f); }
 
-void b3d_set_camera(float x, float y, float z, float xr, float yr, float zr) {
+void b3d_set_camera(float x, float y, float z, float yaw, float pitch, float roll) {
     b3d_camera = (b3d_vec_t){ x, y, z, 1 };
     b3d_vec_t up = { 0.0f, 1.0f, 0.0f, 1.0f };
     b3d_vec_t target = { 0.0f, 0.0f, 1.0f, 1.0f };
-    up = b3d_mat_mul_vec(b3d_mat_rot_z(zr), up);
-    target = b3d_mat_mul_vec(b3d_mat_rot_x(yr), target);
-    target = b3d_mat_mul_vec(b3d_mat_rot_y(xr), target);
+    up = b3d_mat_mul_vec(b3d_mat_rot_z(roll), up);
+    target = b3d_mat_mul_vec(b3d_mat_rot_x(pitch), target);
+    target = b3d_mat_mul_vec(b3d_mat_rot_y(yaw), target);
     target = b3d_vec_add(b3d_camera, target);
     b3d_view = b3d_mat_qinv(b3d_mat_point_at(b3d_camera, target, up));
 }
