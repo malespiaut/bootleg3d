@@ -2,7 +2,7 @@
 
 A software renderer for simple 3D graphics in a single file, written in C99. The main goal is to provide a simple API, and to keep the code base small. It might be particularly useful for retro graphics (N64, PS1, etc.) at lower resolutions with lower polygon counts. Some example programs are provided that use SDL2.
 
-![first-person camera demo]("examples/fps.png")
+![first-person camera demo](examples/fps.png)
 
 ## Features
 
