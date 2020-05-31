@@ -225,12 +225,8 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
     if (ay > by) t = ax, ax = bx, bx = t, t = ay, ay = by, by = t, t = az, az = bz, bz = t;
     if (ay > cy) t = ax, ax = cx, cx = t, t = ay, ay = cy, cy = t, t = az, az = cz, cz = t;
     if (by > cy) t = bx, bx = cx, cx = t, t = by, by = cy, cy = t, t = bz, bz = cz, cz = t;
-    float line_count = cy - ay;
-    float alpha_step = 1.0f / line_count;
-    float alpha = 0.0f;
-    float segment_height = by - ay;
-    float beta_step = 1.0f / segment_height;
-    float beta = 0.0f;
+    float alpha = 0.0f, alpha_step = 1.0f / (cy - ay);
+    float beta  = 0.0f, beta_step  = 1.0f / (by - ay);
     for (float y = ay; y < by; y++) {
         float sx = ax + (cx - ax) * alpha;
         float sz = az + (cz - az) * alpha;
@@ -242,18 +238,13 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
         ex = floorf(ex);
         for (int x = sx; x < ex; ++x) {
             int p = x + y * b3d_width;
-            if (d < b3d_depth[p]) {
-                b3d_pixels[p] = c;
-                b3d_depth[p] = d;
-            }
+            if (d < b3d_depth[p]) b3d_depth[p] = d, b3d_pixels[p] = c;
             d += depth_step;
         }
         alpha += alpha_step;
         beta += beta_step;
     }
-    segment_height = cy - by;
-    beta_step = 1.0f / segment_height;
-    beta = 0.0f;
+    beta = 0.0f, beta_step = 1.0f / (cy - by);
     for (float y = by; y < cy; y++) {
         float sx = ax + (cx - ax) * alpha;
         float sz = az + (cz - az) * alpha;
@@ -265,10 +256,7 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
         ex = floorf(ex);
         for (int x = sx; x < ex; ++x) {
             int p = x + y * b3d_width;
-            if (d < b3d_depth[p]) {
-                b3d_pixels[p] = c;
-                b3d_depth[p] = d;
-            }
+            if (d < b3d_depth[p]) b3d_depth[p] = d, b3d_pixels[p] = c;
             d += depth_step;
         }
         alpha += alpha_step;
