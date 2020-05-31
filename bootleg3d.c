@@ -52,7 +52,7 @@ b3d_vec_t b3d_vec_norm(b3d_vec_t v) { float l = b3d_vec_length(v); return (b3d_v
 b3d_vec_t b3d_vec_sub(b3d_vec_t a, b3d_vec_t b) { return (b3d_vec_t){ a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w }; }
 
 b3d_mat_t b3d_mat_ident() {
-    return (b3d_mat_t){ .m = {
+    return (b3d_mat_t){ {
         [0][0] = 1.0f,
         [1][1] = 1.0f,
         [2][2] = 1.0f,
@@ -61,7 +61,7 @@ b3d_mat_t b3d_mat_ident() {
 }
 
 b3d_mat_t b3d_mat_rot_x(float a) {
-    return (b3d_mat_t){ .m = {
+    return (b3d_mat_t){ {
         [0][0] = 1.0f,
         [1][1] = cosf(a),
         [1][2] = sinf(a),
@@ -72,7 +72,7 @@ b3d_mat_t b3d_mat_rot_x(float a) {
 }
 
 b3d_mat_t b3d_mat_rot_y(float a) {
-    return (b3d_mat_t){ .m = {
+    return (b3d_mat_t){ {
         [0][0] = cosf(a),
         [0][2] = sinf(a),
         [2][0] = -sinf(a),
@@ -83,7 +83,7 @@ b3d_mat_t b3d_mat_rot_y(float a) {
 }
 
 b3d_mat_t b3d_mat_rot_z(float a) {
-    return (b3d_mat_t){ .m = {
+    return (b3d_mat_t){ {
         [0][0] = cosf(a),
         [0][1] = sinf(a),
         [1][0] = -sinf(a),
@@ -94,7 +94,7 @@ b3d_mat_t b3d_mat_rot_z(float a) {
 }
 
 b3d_mat_t b3d_mat_trans(float x, float y, float z) {
-    return (b3d_mat_t){ .m = {
+    return (b3d_mat_t){ {
         [0][0] = 1.0f,
         [1][1] = 1.0f,
         [2][2] = 1.0f,
@@ -106,7 +106,7 @@ b3d_mat_t b3d_mat_trans(float x, float y, float z) {
 }
 
 b3d_mat_t b3d_mat_scale(float x, float y, float z) {
-    return (b3d_mat_t){ .m = {
+    return (b3d_mat_t){ {
         [0][0] = x,
         [1][1] = y,
         [2][2] = z,
@@ -116,7 +116,7 @@ b3d_mat_t b3d_mat_scale(float x, float y, float z) {
 
 b3d_mat_t b3d_mat_proj(float fov, float aspect, float near, float far) {
     fov = 1.0f / tanf(fov * 0.5f / 180.0f * 3.14159f);
-    return (b3d_mat_t){ .m = {
+    return (b3d_mat_t){ {
         [0][0] = aspect * fov,
         [1][1] = fov,
         [2][2] = far / (far - near),
@@ -150,7 +150,7 @@ b3d_vec_t b3d_mat_mul_vec(b3d_mat_t m, b3d_vec_t v) {
 }
 
 b3d_mat_t b3d_mat_qinv(b3d_mat_t m) {
-    b3d_mat_t o = (b3d_mat_t){ .m = {
+    b3d_mat_t o = (b3d_mat_t){ {
         [0][0] = m.m[0][0], [0][1] = m.m[1][0], [0][2] = m.m[2][0], [0][3] = 0.0f,
         [1][0] = m.m[0][1], [1][1] = m.m[1][1], [1][2] = m.m[2][1], [1][3] = 0.0f,
         [2][0] = m.m[0][2], [2][1] = m.m[1][2], [2][2] = m.m[2][2], [2][3] = 0.0f,
@@ -168,7 +168,7 @@ b3d_mat_t b3d_mat_point_at(b3d_vec_t pos, b3d_vec_t target, b3d_vec_t up) {
     b3d_vec_t a = b3d_vec_mul(forward, b3d_vec_dot(up, forward));
     up = b3d_vec_norm(b3d_vec_sub(up, a));
     b3d_vec_t right = b3d_vec_cross(up, forward);
-    return (b3d_mat_t){ .m = {
+    return (b3d_mat_t){ {
         [0][0] = right.x,   [0][1] = right.y,   [0][2] = right.z,   [0][3] = 0.0f,
         [1][0] = up.x,      [1][1] = up.y,      [1][2] = up.z,      [1][3] = 0.0f,
         [2][0] = forward.x, [2][1] = forward.y, [2][2] = forward.z, [2][3] = 0.0f,
@@ -232,16 +232,15 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
     float beta_step = 1.0f / segment_height;
     float beta = 0.0f;
     for (float y = ay; y < by; y++) {
-        float Ax = ax + (cx - ax) * alpha;
-        float Az = az + (cz - az) * alpha;
-        float Bx = ax + (bx - ax) * beta;
-        float Bz = az + (bz - az) * beta;
-        if (Ax > Bx) t = Ax, Ax = Bx, Bx = t, t = Az, Az = Bz, Bz = t;
-        float steps = (Bx - Ax) < 1 ? 1 : (Bx - Ax);
-        float depth_step = (Bz - Az) / steps;
-        float d = Az;
-        Bx = floorf(Bx);
-        for (int x = Ax; x < Bx; ++x) {
+        float sx = ax + (cx - ax) * alpha;
+        float sz = az + (cz - az) * alpha;
+        float ex = ax + (bx - ax) * beta;
+        float ez = az + (bz - az) * beta;
+        if (sx > ex) t = sx, sx = ex, ex = t, t = sz, sz = ez, ez = t;
+        float depth_step = (ez - sz) / (ex - sx);
+        float d = sz;
+        ex = floorf(ex);
+        for (int x = sx; x < ex; ++x) {
             int p = x + y * b3d_width;
             if (d < b3d_depth[p]) {
                 b3d_pixels[p] = c;
@@ -256,16 +255,15 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
     beta_step = 1.0f / segment_height;
     beta = 0.0f;
     for (float y = by; y < cy; y++) {
-        float Ax = ax + (cx - ax) * alpha;
-        float Az = az + (cz - az) * alpha;
-        float Bx = bx + (cx - bx) * beta;
-        float Bz = bz + (cz - bz) * beta;
-        if (Ax > Bx) t = Ax, Ax = Bx, Bx = t, t = Az, Az = Bz, Bz = t;
-        float steps = (Bx - Ax) < 1 ? 1 : (Bx - Ax);
-        float depth_step = (Bz - Az) / steps;
-        float d = Az;
-        Bx = floorf(Bx);
-        for (int x = Ax; x < Bx; ++x) {
+        float sx = ax + (cx - ax) * alpha;
+        float sz = az + (cz - az) * alpha;
+        float ex = bx + (cx - bx) * beta;
+        float ez = bz + (cz - bz) * beta;
+        if (sx > ex) t = sx, sx = ex, ex = t, t = sz, sz = ez, ez = t;
+        float depth_step = (ez - sz) / (ex - sx);
+        float d = sz;
+        ex = floorf(ex);
+        for (int x = sx; x < ex; ++x) {
             int p = x + y * b3d_width;
             if (d < b3d_depth[p]) {
                 b3d_pixels[p] = c;
@@ -291,73 +289,67 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
     b3d_vec_t line_b = b3d_vec_sub(t.p[2], t.p[0]);
     b3d_vec_t normal = b3d_vec_cross(line_a, line_b);
     b3d_vec_t cam_ray = b3d_vec_sub(t.p[0], b3d_camera);
-    if (b3d_vec_dot(normal, cam_ray) < 0.0f) {
-        t.p[0] = b3d_mat_mul_vec(b3d_view, t.p[0]);
-        t.p[1] = b3d_mat_mul_vec(b3d_view, t.p[1]);
-        t.p[2] = b3d_mat_mul_vec(b3d_view, t.p[2]);
-        b3d_triangle_t clipped[2];
-        int count = b3d_clip_against_plane(
-            (b3d_vec_t){ 0.0f, 0.0f, 0.1f, 1.0f },
-            (b3d_vec_t){ 0.0f, 0.0f, 1.0f, 1.0f },
-            t,
-            clipped
-        );
-        b3d_triangle_t queue[16];
-        int queue_count = 0;
-        for (int n = 0; n < count; ++n) {
-            t.p[0] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[0]);
-            t.p[1] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[1]);
-            t.p[2] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[2]);
-            t.p[0] = b3d_vec_div(t.p[0], t.p[0].w);
-            t.p[1] = b3d_vec_div(t.p[1], t.p[1].w);
-            t.p[2] = b3d_vec_div(t.p[2], t.p[2].w);
-            float xs = b3d_width / 2.0f;
-            float ys = b3d_height / 2.0f;
-            t.p[0].x = ( t.p[0].x + 1.0f) * xs;
-            t.p[0].y = (-t.p[0].y + 1.0f) * ys;
-            t.p[1].x = ( t.p[1].x + 1.0f) * xs;
-            t.p[1].y = (-t.p[1].y + 1.0f) * ys;
-            t.p[2].x = ( t.p[2].x + 1.0f) * xs;
-            t.p[2].y = (-t.p[2].y + 1.0f) * ys;
-            queue[queue_count++] = t;
-        }
-        b3d_vec_t tp = { 0.0f, 0.5f, 0.0f, 1.0f };
-        b3d_vec_t tn = { 0.0f, 1.0f, 0.0f, 1.0f };
-        b3d_vec_t bp = { 0.0f, (float)b3d_height, 0.0f, 1.0f };
-        b3d_vec_t bn = { 0.0f, -1.0f, 0.0f, 1.0f };
-        b3d_vec_t lp = { 0.5f, 0.0f, 0.0f, 1.0f };
-        b3d_vec_t ln = { 1.0f, 0.0f, 0.0f, 1.0f };
-        b3d_vec_t rp = { (float)b3d_width, 0.0f, 0.0f, 1.0f };
-        b3d_vec_t rn = { -1.0f, 0.0f, 0.0f, 1.0f };
-        int triangles_to_clip = queue_count;
-        for (int p = 0; p < 4; ++p) {
-            int n = 0;
-            while (triangles_to_clip > 0) {
-                b3d_triangle_t test = queue[0];
-                --queue_count;
-                --triangles_to_clip;
-                memmove(queue, queue + 1, sizeof(b3d_triangle_t) * queue_count);
-                switch (p) {
-                    case 0: n = b3d_clip_against_plane(tp, tn, test, clipped); break;
-                    case 1: n = b3d_clip_against_plane(bp, bn, test, clipped); break;
-                    case 2: n = b3d_clip_against_plane(lp, ln, test, clipped); break;
-                    case 3: n = b3d_clip_against_plane(rp, rn, test, clipped); break;
-                }
-                for (int w = 0; w < n; ++w) {
-                    queue[queue_count++] = clipped[w];
-                }
+    if (b3d_vec_dot(normal, cam_ray) > 0.0f) return;
+    t.p[0] = b3d_mat_mul_vec(b3d_view, t.p[0]);
+    t.p[1] = b3d_mat_mul_vec(b3d_view, t.p[1]);
+    t.p[2] = b3d_mat_mul_vec(b3d_view, t.p[2]);
+    b3d_triangle_t clipped[2];
+    int count = b3d_clip_against_plane((b3d_vec_t){0,0,.1,1}, (b3d_vec_t){0,0,1,1}, t, clipped);
+    b3d_triangle_t queue[16];
+    int queue_count = 0;
+    for (int n = 0; n < count; ++n) {
+        t.p[0] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[0]);
+        t.p[1] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[1]);
+        t.p[2] = b3d_mat_mul_vec(b3d_proj, clipped[n].p[2]);
+        t.p[0] = b3d_vec_div(t.p[0], t.p[0].w);
+        t.p[1] = b3d_vec_div(t.p[1], t.p[1].w);
+        t.p[2] = b3d_vec_div(t.p[2], t.p[2].w);
+        float xs = b3d_width / 2.0f;
+        float ys = b3d_height / 2.0f;
+        t.p[0].x = ( t.p[0].x + 1.0f) * xs;
+        t.p[0].y = (-t.p[0].y + 1.0f) * ys;
+        t.p[1].x = ( t.p[1].x + 1.0f) * xs;
+        t.p[1].y = (-t.p[1].y + 1.0f) * ys;
+        t.p[2].x = ( t.p[2].x + 1.0f) * xs;
+        t.p[2].y = (-t.p[2].y + 1.0f) * ys;
+        queue[queue_count++] = t;
+    }
+    b3d_vec_t tp = { 0.0f, 0.5f, 0.0f, 1.0f };
+    b3d_vec_t tn = { 0.0f, 1.0f, 0.0f, 1.0f };
+    b3d_vec_t bp = { 0.0f, b3d_height, 0.0f, 1.0f };
+    b3d_vec_t bn = { 0.0f, -1.0f, 0.0f, 1.0f };
+    b3d_vec_t lp = { 0.5f, 0.0f, 0.0f, 1.0f };
+    b3d_vec_t ln = { 1.0f, 0.0f, 0.0f, 1.0f };
+    b3d_vec_t rp = { b3d_width, 0.0f, 0.0f, 1.0f };
+    b3d_vec_t rn = { -1.0f, 0.0f, 0.0f, 1.0f };
+    int triangles_to_clip = queue_count;
+    for (int p = 0; p < 4; ++p) {
+        int n = 0;
+        while (triangles_to_clip > 0) {
+            b3d_triangle_t test = queue[0];
+            --queue_count;
+            --triangles_to_clip;
+            memmove(queue, queue + 1, sizeof(b3d_triangle_t) * queue_count);
+            switch (p) {
+                case 0: n = b3d_clip_against_plane(tp, tn, test, clipped); break;
+                case 1: n = b3d_clip_against_plane(bp, bn, test, clipped); break;
+                case 2: n = b3d_clip_against_plane(lp, ln, test, clipped); break;
+                case 3: n = b3d_clip_against_plane(rp, rn, test, clipped); break;
             }
-            triangles_to_clip = queue_count;
+            for (int w = 0; w < n; ++w) {
+                queue[queue_count++] = clipped[w];
+            }
         }
-        for (int i = 0; i < queue_count; ++i) {
-            b3d_triangle_t * t = &queue[i];
-            b3d_rasterise(
-                t->p[0].x, t->p[0].y, t->p[0].z,
-                t->p[1].x, t->p[1].y, t->p[1].z,
-                t->p[2].x, t->p[2].y, t->p[2].z,
-                c
-            );
-        }
+        triangles_to_clip = queue_count;
+    }
+    for (int i = 0; i < queue_count; ++i) {
+        b3d_triangle_t * t = &queue[i];
+        b3d_rasterise(
+            t->p[0].x, t->p[0].y, t->p[0].z,
+            t->p[1].x, t->p[1].y, t->p[1].z,
+            t->p[2].x, t->p[2].y, t->p[2].z,
+            c
+        );
     }
 }
 
