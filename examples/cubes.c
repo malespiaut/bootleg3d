@@ -26,7 +26,7 @@ int main() {
     // For framerate counting.
     double freq = SDL_GetPerformanceFrequency();
     uint32_t next_update = 0;
-    const int samples = 32;
+    const int samples = 100;
     float average_fps[samples];
     int average_index = 0;
     int have_enough_samples = 0;
@@ -75,7 +75,6 @@ int main() {
         }
 
         // Display the pixel buffer on screen (using a streaming texture).
-        SDL_Delay(1);
         SDL_RenderClear(renderer);
         SDL_UpdateTexture(texture, NULL, pixel_buffer, width * sizeof(uint32_t));
         SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -87,7 +86,7 @@ int main() {
             float fps = 0;
             for (int i = 0; i < samples; ++i) fps += average_fps[i];
             fps /= samples;
-            if (fps > 61) cube_count += 10 * (fps - 60);
+            cube_count += (fps > 60) ? 50 : -50;
             snprintf(title, 32, "%d tris, %.1f fps", cube_count * 12, fps);
             SDL_SetWindowTitle(window, title);
             next_update = SDL_GetTicks() + 250;
