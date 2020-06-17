@@ -34,7 +34,7 @@ void b3d_set_fov(float fov_in_degrees);
 void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, uint32_t c);
 ```
 
-Add `#define BOOTLEG3D_IMPLEMENTATION` before ONE of your includes to compile with the library.
+Add `#define BOOTLEG3D_IMPLEMENTATION` before ONE of your includes to compile with the library. Add `#define BOOTLEG3D_NO_CULLING` to disable back-face culling.
 
 ## TODO
 + Draw a buffer of triangles in one call
@@ -43,7 +43,6 @@ Add `#define BOOTLEG3D_IMPLEMENTATION` before ONE of your includes to compile wi
 + Wire-frame rendering
 + Camera utility functions
 + Make cstdlib fully optional
-+ Test and ensure C++ compatibility
 + Maybe:
     - Texture mapping
     - Lighting

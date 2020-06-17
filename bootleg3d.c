@@ -273,11 +273,13 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
     t.p[0] = b3d_mat_mul_vec(b3d_model, t.p[0]);
     t.p[1] = b3d_mat_mul_vec(b3d_model, t.p[1]);
     t.p[2] = b3d_mat_mul_vec(b3d_model, t.p[2]);
+    #ifndef BOOTLEG3D_NO_CULLING
     b3d_vec_t line_a = b3d_vec_sub(t.p[1], t.p[0]);
     b3d_vec_t line_b = b3d_vec_sub(t.p[2], t.p[0]);
     b3d_vec_t normal = b3d_vec_cross(line_a, line_b);
     b3d_vec_t cam_ray = b3d_vec_sub(t.p[0], b3d_camera);
     if (b3d_vec_dot(normal, cam_ray) > 0.0f) return;
+    #endif
     t.p[0] = b3d_mat_mul_vec(b3d_view, t.p[0]);
     t.p[1] = b3d_mat_mul_vec(b3d_view, t.p[1]);
     t.p[2] = b3d_mat_mul_vec(b3d_view, t.p[2]);
@@ -347,7 +349,7 @@ void b3d_rotate_y(float angle) { b3d_model = b3d_mat_mul(b3d_model, b3d_mat_rot_
 void b3d_rotate_z(float angle) { b3d_model = b3d_mat_mul(b3d_model, b3d_mat_rot_z(angle)); }
 void b3d_translate(float x, float y, float z) { b3d_model = b3d_mat_mul(b3d_model, b3d_mat_trans(x, y, z)); }
 void b3d_scale(float x, float y, float z) { b3d_model = b3d_mat_mul(b3d_model, b3d_mat_scale(x, y, z)); }
-void b3d_set_fov(float fov_in_degrees) { b3d_proj = b3d_mat_proj(fov_in_degrees, b3d_height/(float)b3d_width, 0.01f, 1000.0f); }
+void b3d_set_fov(float fov_in_degrees) { b3d_proj = b3d_mat_proj(fov_in_degrees, b3d_height/(float)b3d_width, 0.1f, 100.0f); }
 
 void b3d_set_camera(float x, float y, float z, float yaw, float pitch, float roll) {
     b3d_camera = (b3d_vec_t){ x, y, z, 1 };
@@ -367,7 +369,7 @@ void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float
     b3d_depth = depth_buffer;
     b3d_clear();
     b3d_reset();
-    b3d_proj = b3d_mat_proj(fov, b3d_height/(float)b3d_width, 0.01f, 1000.0f);
+    b3d_proj = b3d_mat_proj(fov, b3d_height/(float)b3d_width, 0.1f, 100.0f);
     b3d_set_camera(0, 0, 0, 0, 0, 0);
 }
 
