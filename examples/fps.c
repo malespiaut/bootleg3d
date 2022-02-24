@@ -9,7 +9,7 @@
     Use WASD or the arrow keys to move, and mouse to look.
 */
 
-
+#include <time.h> // random number seed
 #include <SDL2/SDL.h>
 #define BOOTLEG3D_IMPLEMENTATION
 #include "bootleg3d.c"

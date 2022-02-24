@@ -52,7 +52,7 @@ b3d_vec_t b3d_vec_norm(b3d_vec_t v) { float l = b3d_vec_length(v); return (b3d_v
 b3d_vec_t b3d_vec_sub(b3d_vec_t a, b3d_vec_t b) { return (b3d_vec_t){ a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w }; }
 
 b3d_mat_t b3d_mat_ident() {
-    return (b3d_mat_t){ {
+    return (b3d_mat_t){{
         [0][0] = 1.0f,
         [1][1] = 1.0f,
         [2][2] = 1.0f,
@@ -61,7 +61,7 @@ b3d_mat_t b3d_mat_ident() {
 }
 
 b3d_mat_t b3d_mat_rot_x(float a) {
-    return (b3d_mat_t){ {
+    return (b3d_mat_t){{
         [0][0] = 1.0f,
         [1][1] = cosf(a),
         [1][2] = sinf(a),
@@ -72,7 +72,7 @@ b3d_mat_t b3d_mat_rot_x(float a) {
 }
 
 b3d_mat_t b3d_mat_rot_y(float a) {
-    return (b3d_mat_t){ {
+    return (b3d_mat_t){{
         [0][0] = cosf(a),
         [0][2] = sinf(a),
         [2][0] = -sinf(a),
@@ -83,7 +83,7 @@ b3d_mat_t b3d_mat_rot_y(float a) {
 }
 
 b3d_mat_t b3d_mat_rot_z(float a) {
-    return (b3d_mat_t){ {
+    return (b3d_mat_t){{
         [0][0] = cosf(a),
         [0][1] = sinf(a),
         [1][0] = -sinf(a),
@@ -94,7 +94,7 @@ b3d_mat_t b3d_mat_rot_z(float a) {
 }
 
 b3d_mat_t b3d_mat_trans(float x, float y, float z) {
-    return (b3d_mat_t){ {
+    return (b3d_mat_t){{
         [0][0] = 1.0f,
         [1][1] = 1.0f,
         [2][2] = 1.0f,
@@ -106,7 +106,7 @@ b3d_mat_t b3d_mat_trans(float x, float y, float z) {
 }
 
 b3d_mat_t b3d_mat_scale(float x, float y, float z) {
-    return (b3d_mat_t){ {
+    return (b3d_mat_t){{
         [0][0] = x,
         [1][1] = y,
         [2][2] = z,
@@ -116,7 +116,7 @@ b3d_mat_t b3d_mat_scale(float x, float y, float z) {
 
 b3d_mat_t b3d_mat_proj(float fov, float aspect, float near, float far) {
     fov = 1.0f / tanf(fov * 0.5f / 180.0f * 3.14159f);
-    return (b3d_mat_t){ {
+    return (b3d_mat_t){{
         [0][0] = aspect * fov,
         [1][1] = fov,
         [2][2] = far / (far - near),
@@ -150,7 +150,7 @@ b3d_vec_t b3d_mat_mul_vec(b3d_mat_t m, b3d_vec_t v) {
 }
 
 b3d_mat_t b3d_mat_qinv(b3d_mat_t m) {
-    b3d_mat_t o = (b3d_mat_t){ {
+    b3d_mat_t o = (b3d_mat_t){{
         [0][0] = m.m[0][0], [0][1] = m.m[1][0], [0][2] = m.m[2][0], [0][3] = 0.0f,
         [1][0] = m.m[0][1], [1][1] = m.m[1][1], [1][2] = m.m[2][1], [1][3] = 0.0f,
         [2][0] = m.m[0][2], [2][1] = m.m[1][2], [2][2] = m.m[2][2], [2][3] = 0.0f,
@@ -168,7 +168,7 @@ b3d_mat_t b3d_mat_point_at(b3d_vec_t pos, b3d_vec_t target, b3d_vec_t up) {
     b3d_vec_t a = b3d_vec_mul(forward, b3d_vec_dot(up, forward));
     up = b3d_vec_norm(b3d_vec_sub(up, a));
     b3d_vec_t right = b3d_vec_cross(up, forward);
-    return (b3d_mat_t){ {
+    return (b3d_mat_t){{
         [0][0] = right.x,   [0][1] = right.y,   [0][2] = right.z,   [0][3] = 0.0f,
         [1][0] = up.x,      [1][1] = up.y,      [1][2] = up.z,      [1][3] = 0.0f,
         [2][0] = forward.x, [2][1] = forward.y, [2][2] = forward.z, [2][3] = 0.0f,
@@ -220,14 +220,15 @@ int b3d_clip_against_plane(b3d_vec_t plane, b3d_vec_t norm, b3d_triangle_t in, b
 }
 
 void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, uint32_t c) {
-    ay = floorf(ay), by = floorf(by), cy = floorf(cy);
+    ax = floorf(ax); bx = floorf(bx); cx = floorf(cx);
+    ay = floorf(ay); by = floorf(by); cy = floorf(cy);
     float t = 0.0f;
     if (ay > by) t = ax, ax = bx, bx = t, t = ay, ay = by, by = t, t = az, az = bz, bz = t;
     if (ay > cy) t = ax, ax = cx, cx = t, t = ay, ay = cy, cy = t, t = az, az = cz, cz = t;
     if (by > cy) t = bx, bx = cx, cx = t, t = by, by = cy, cy = t, t = bz, bz = cz, cz = t;
     float alpha = 0.0f, alpha_step = 1.0f / (cy - ay);
     float beta  = 0.0f, beta_step  = 1.0f / (by - ay);
-    for (float y = ay; y < by; y++) {
+    for (int y = ay; y < by; y++) {
         float sx = ax + (cx - ax) * alpha;
         float sz = az + (cz - az) * alpha;
         float ex = ax + (bx - ax) * beta;
@@ -235,8 +236,8 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
         if (sx > ex) t = sx, sx = ex, ex = t, t = sz, sz = ez, ez = t;
         float depth_step = (ez - sz) / (ex - sx);
         float d = sz;
-        ex = floorf(ex);
-        for (int x = sx; x < ex; ++x) {
+        int end = ex;
+        for (int x = sx; x < end; ++x) {
             int p = x + y * b3d_width;
             if (d < b3d_depth[p]) b3d_depth[p] = d, b3d_pixels[p] = c;
             d += depth_step;
@@ -245,7 +246,7 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
         beta += beta_step;
     }
     beta = 0.0f, beta_step = 1.0f / (cy - by);
-    for (float y = by; y < cy; y++) {
+    for (int y = by; y < cy; y++) {
         float sx = ax + (cx - ax) * alpha;
         float sz = az + (cz - az) * alpha;
         float ex = bx + (cx - bx) * beta;
@@ -253,8 +254,8 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
         if (sx > ex) t = sx, sx = ex, ex = t, t = sz, sz = ez, ez = t;
         float depth_step = (ez - sz) / (ex - sx);
         float d = sz;
-        ex = floorf(ex);
-        for (int x = sx; x < ex; ++x) {
+        int end = ex;
+        for (int x = sx; x < end; ++x) {
             int p = x + y * b3d_width;
             if (d < b3d_depth[p]) b3d_depth[p] = d, b3d_pixels[p] = c;
             d += depth_step;
@@ -278,7 +279,7 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
     b3d_vec_t line_b = b3d_vec_sub(t.p[2], t.p[0]);
     b3d_vec_t normal = b3d_vec_cross(line_a, line_b);
     b3d_vec_t cam_ray = b3d_vec_sub(t.p[0], b3d_camera);
-    if (b3d_vec_dot(normal, cam_ray) > 0.0f) return;
+    if (b3d_vec_dot(normal, cam_ray) > 0.001f) return;
     #endif
     t.p[0] = b3d_mat_mul_vec(b3d_view, t.p[0]);
     t.p[1] = b3d_mat_mul_vec(b3d_view, t.p[1]);

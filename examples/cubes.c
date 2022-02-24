@@ -33,7 +33,7 @@ int main() {
 
     int cube_count = 100;
 
-    b3d_set_camera(0, 0, -4, 0, 0, 0);
+    b3d_set_camera(0, 0, -2, 0, 0, 0);
 
     while (1) {
         uint64_t time_stamp = SDL_GetPerformanceCounter();
