@@ -363,6 +363,11 @@ void b3d_set_camera(float x, float y, float z, float yaw, float pitch, float rol
     b3d_view = b3d_mat_qinv(b3d_mat_point_at(b3d_camera, target, up));
 }
 
+void b3d_look_at(float x, float y, float z) {
+    b3d_vec_t up = { 0.0f, 1.0f, 0.0f, 1.0f };
+    b3d_view = b3d_mat_qinv(b3d_mat_point_at(b3d_camera, (b3d_vec_t){ x, y, z }, up));
+}
+
 void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float fov) {
     b3d_width = w;
     b3d_height = h;
