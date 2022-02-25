@@ -279,7 +279,7 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
     b3d_vec_t line_b = b3d_vec_sub(t.p[2], t.p[0]);
     b3d_vec_t normal = b3d_vec_cross(line_a, line_b);
     b3d_vec_t cam_ray = b3d_vec_sub(t.p[0], b3d_camera);
-    if (b3d_vec_dot(normal, cam_ray) > 0.001f) return;
+    if (b3d_vec_dot(normal, cam_ray) > 0.01f) return;
     #endif
     t.p[0] = b3d_mat_mul_vec(b3d_view, t.p[0]);
     t.p[1] = b3d_mat_mul_vec(b3d_view, t.p[1]);
