@@ -128,6 +128,8 @@ int main(int argument_count, char ** arguments) {
                     right = event.key.state;
                 } else if (sc == SDL_SCANCODE_LSHIFT || sc == SDL_SCANCODE_RSHIFT || sc == SDL_SCANCODE_C) {
                     crouch = event.key.state;
+                } else if (sc == SDL_SCANCODE_ESCAPE) {
+                    exit(0);
                 }
             } else if (event.type == SDL_MOUSEMOTION) {
                 player_yaw -= event.motion.xrel * mouse_sensitivity;

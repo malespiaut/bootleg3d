@@ -40,7 +40,10 @@ int main() {
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) exit(0);
+            if (event.type == SDL_QUIT ||
+               (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)) {
+                exit(0);
+            }
         }
 
         // Current time in milliseconds.
