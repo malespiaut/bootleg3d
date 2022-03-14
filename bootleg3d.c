@@ -42,32 +42,35 @@ typedef struct { b3d_vec_t p[3]; } b3d_triangle_t;
 b3d_mat_t b3d_model, b3d_view, b3d_proj;
 b3d_vec_t b3d_camera;
 
+#define B3D_NEAR_DISTANCE 0.1f
+#define B3D_FAR_DISTANCE 100.0f
+
 float b3d_vec_dot(b3d_vec_t a, b3d_vec_t b) { return a.x*b.x + a.y*b.y + a.z*b.z; }
 float b3d_vec_length(b3d_vec_t v) { return sqrtf(b3d_vec_dot(v, v)); }
 b3d_vec_t b3d_vec_add(b3d_vec_t a, b3d_vec_t b) { return (b3d_vec_t){ a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w }; }
-b3d_vec_t b3d_vec_cross(b3d_vec_t a, b3d_vec_t b) { return (b3d_vec_t){ a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x, 1.0f }; }
-b3d_vec_t b3d_vec_div(b3d_vec_t a, float b) { return (b3d_vec_t){ a.x / b, a.y / b, a.z / b, 1.0f }; }
+b3d_vec_t b3d_vec_cross(b3d_vec_t a, b3d_vec_t b) { return (b3d_vec_t){ a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x, 1 }; }
+b3d_vec_t b3d_vec_div(b3d_vec_t a, float b) { return (b3d_vec_t){ a.x / b, a.y / b, a.z / b, 1 }; }
 b3d_vec_t b3d_vec_mul(b3d_vec_t a, float b) { return (b3d_vec_t){ a.x * b, a.y * b, a.z * b, a.w * b }; }
-b3d_vec_t b3d_vec_norm(b3d_vec_t v) { float l = b3d_vec_length(v); return (b3d_vec_t){ v.x / l, v.y / l, v.z / l, 1.0f }; }
+b3d_vec_t b3d_vec_norm(b3d_vec_t v) { float l = b3d_vec_length(v); return (b3d_vec_t){ v.x / l, v.y / l, v.z / l, 1 }; }
 b3d_vec_t b3d_vec_sub(b3d_vec_t a, b3d_vec_t b) { return (b3d_vec_t){ a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w }; }
 
 b3d_mat_t b3d_mat_ident() {
     return (b3d_mat_t){{
-        [0][0] = 1.0f,
-        [1][1] = 1.0f,
-        [2][2] = 1.0f,
-        [3][3] = 1.0f,
+        [0][0] = 1,
+        [1][1] = 1,
+        [2][2] = 1,
+        [3][3] = 1,
     }};
 }
 
 b3d_mat_t b3d_mat_rot_x(float a) {
     return (b3d_mat_t){{
-        [0][0] = 1.0f,
+        [0][0] = 1,
         [1][1] = cosf(a),
         [1][2] = sinf(a),
         [2][1] = -sinf(a),
         [2][2] = cosf(a),
-        [3][3] = 1.0f,
+        [3][3] = 1,
     }};
 }
 
@@ -76,9 +79,9 @@ b3d_mat_t b3d_mat_rot_y(float a) {
         [0][0] = cosf(a),
         [0][2] = sinf(a),
         [2][0] = -sinf(a),
-        [1][1] = 1.0f,
+        [1][1] = 1,
         [2][2] = cosf(a),
-        [3][3] = 1.0f,
+        [3][3] = 1,
     }};
 }
 
@@ -88,17 +91,17 @@ b3d_mat_t b3d_mat_rot_z(float a) {
         [0][1] = sinf(a),
         [1][0] = -sinf(a),
         [1][1] = cosf(a),
-        [2][2] = 1.0f,
-        [3][3] = 1.0f,
+        [2][2] = 1,
+        [3][3] = 1,
     }};
 }
 
 b3d_mat_t b3d_mat_trans(float x, float y, float z) {
     return (b3d_mat_t){{
-        [0][0] = 1.0f,
-        [1][1] = 1.0f,
-        [2][2] = 1.0f,
-        [3][3] = 1.0f,
+        [0][0] = 1,
+        [1][1] = 1,
+        [2][2] = 1,
+        [3][3] = 1,
         [3][0] = x,
         [3][1] = y,
         [3][2] = z,
@@ -110,19 +113,19 @@ b3d_mat_t b3d_mat_scale(float x, float y, float z) {
         [0][0] = x,
         [1][1] = y,
         [2][2] = z,
-        [3][3] = 1.0f,
+        [3][3] = 1,
     }};
 }
 
 b3d_mat_t b3d_mat_proj(float fov, float aspect, float near, float far) {
-    fov = 1.0f / tanf(fov * 0.5f / 180.0f * 3.14159f);
+    fov = 1.0f / tanf(fov * 0.5f / 180.0f * 3.1415926536f);
     return (b3d_mat_t){{
         [0][0] = aspect * fov,
         [1][1] = fov,
         [2][2] = far / (far - near),
         [3][2] = (-far * near) / (far - near),
-        [2][3] = 1.0f,
-        [3][3] = 0.0f,
+        [2][3] = 1,
+        [3][3] = 0,
     }};
 }
 
@@ -151,14 +154,14 @@ b3d_vec_t b3d_mat_mul_vec(b3d_mat_t m, b3d_vec_t v) {
 
 b3d_mat_t b3d_mat_qinv(b3d_mat_t m) {
     b3d_mat_t o = (b3d_mat_t){{
-        [0][0] = m.m[0][0], [0][1] = m.m[1][0], [0][2] = m.m[2][0], [0][3] = 0.0f,
-        [1][0] = m.m[0][1], [1][1] = m.m[1][1], [1][2] = m.m[2][1], [1][3] = 0.0f,
-        [2][0] = m.m[0][2], [2][1] = m.m[1][2], [2][2] = m.m[2][2], [2][3] = 0.0f,
+        [0][0] = m.m[0][0], [0][1] = m.m[1][0], [0][2] = m.m[2][0], [0][3] = 0,
+        [1][0] = m.m[0][1], [1][1] = m.m[1][1], [1][2] = m.m[2][1], [1][3] = 0,
+        [2][0] = m.m[0][2], [2][1] = m.m[1][2], [2][2] = m.m[2][2], [2][3] = 0,
     }};
     o.m[3][0] = -(m.m[3][0] * o.m[0][0] + m.m[3][1] * o.m[1][0] + m.m[3][2] * o.m[2][0]);
     o.m[3][1] = -(m.m[3][0] * o.m[0][1] + m.m[3][1] * o.m[1][1] + m.m[3][2] * o.m[2][1]);
     o.m[3][2] = -(m.m[3][0] * o.m[0][2] + m.m[3][1] * o.m[1][2] + m.m[3][2] * o.m[2][2]);
-    o.m[3][3] = 1.0f;
+    o.m[3][3] = 1;
     return o;
 }
 
@@ -169,10 +172,10 @@ b3d_mat_t b3d_mat_point_at(b3d_vec_t pos, b3d_vec_t target, b3d_vec_t up) {
     up = b3d_vec_norm(b3d_vec_sub(up, a));
     b3d_vec_t right = b3d_vec_cross(up, forward);
     return (b3d_mat_t){{
-        [0][0] = right.x,   [0][1] = right.y,   [0][2] = right.z,   [0][3] = 0.0f,
-        [1][0] = up.x,      [1][1] = up.y,      [1][2] = up.z,      [1][3] = 0.0f,
-        [2][0] = forward.x, [2][1] = forward.y, [2][2] = forward.z, [2][3] = 0.0f,
-        [3][0] = pos.x,     [3][1] = pos.y,     [3][2] = pos.z,     [3][3] = 1.0f,
+        [0][0] = right.x,   [0][1] = right.y,   [0][2] = right.z,   [0][3] = 0,
+        [1][0] = up.x,      [1][1] = up.y,      [1][2] = up.z,      [1][3] = 0,
+        [2][0] = forward.x, [2][1] = forward.y, [2][2] = forward.z, [2][3] = 0,
+        [3][0] = pos.x,     [3][1] = pos.y,     [3][2] = pos.z,     [3][3] = 1,
     }};
 }
 
@@ -222,12 +225,12 @@ int b3d_clip_against_plane(b3d_vec_t plane, b3d_vec_t norm, b3d_triangle_t in, b
 void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, uint32_t c) {
     ax = floorf(ax); bx = floorf(bx); cx = floorf(cx);
     ay = floorf(ay); by = floorf(by); cy = floorf(cy);
-    float t = 0.0f;
+    float t = 0;
     if (ay > by) t = ax, ax = bx, bx = t, t = ay, ay = by, by = t, t = az, az = bz, bz = t;
     if (ay > cy) t = ax, ax = cx, cx = t, t = ay, ay = cy, cy = t, t = az, az = cz, cz = t;
     if (by > cy) t = bx, bx = cx, cx = t, t = by, by = cy, cy = t, t = bz, bz = cz, cz = t;
-    float alpha = 0.0f, alpha_step = 1.0f / (cy - ay);
-    float beta  = 0.0f, beta_step  = 1.0f / (by - ay);
+    float alpha = 0, alpha_step = 1 / (cy - ay);
+    float beta  = 0, beta_step  = 1 / (by - ay);
     for (int y = ay; y < by; y++) {
         float sx = ax + (cx - ax) * alpha;
         float sz = az + (cz - az) * alpha;
@@ -245,7 +248,7 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
         alpha += alpha_step;
         beta += beta_step;
     }
-    beta = 0.0f, beta_step = 1.0f / (cy - by);
+    beta = 0, beta_step = 1 / (cy - by);
     for (int y = by; y < cy; y++) {
         float sx = ax + (cx - ax) * alpha;
         float sz = az + (cz - az) * alpha;
@@ -285,7 +288,12 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
     t.p[1] = b3d_mat_mul_vec(b3d_view, t.p[1]);
     t.p[2] = b3d_mat_mul_vec(b3d_view, t.p[2]);
     b3d_triangle_t clipped[2];
-    int count = b3d_clip_against_plane((b3d_vec_t){0,0,.1,1}, (b3d_vec_t){0,0,1,1}, t, clipped);
+    int count = b3d_clip_against_plane(
+        (b3d_vec_t){ 0, 0, B3D_NEAR_DISTANCE, 1 },
+        (b3d_vec_t){ 0, 0, 1, 1 },
+        t,
+        clipped
+    );
     b3d_triangle_t queue[16];
     int queue_count = 0;
     for (int n = 0; n < count; ++n) {
@@ -297,22 +305,22 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
         t.p[2] = b3d_vec_div(t.p[2], t.p[2].w);
         float xs = b3d_width / 2.0f;
         float ys = b3d_height / 2.0f;
-        t.p[0].x = ( t.p[0].x + 1.0f) * xs;
-        t.p[0].y = (-t.p[0].y + 1.0f) * ys;
-        t.p[1].x = ( t.p[1].x + 1.0f) * xs;
-        t.p[1].y = (-t.p[1].y + 1.0f) * ys;
-        t.p[2].x = ( t.p[2].x + 1.0f) * xs;
-        t.p[2].y = (-t.p[2].y + 1.0f) * ys;
+        t.p[0].x = ( t.p[0].x + 1) * xs;
+        t.p[0].y = (-t.p[0].y + 1) * ys;
+        t.p[1].x = ( t.p[1].x + 1) * xs;
+        t.p[1].y = (-t.p[1].y + 1) * ys;
+        t.p[2].x = ( t.p[2].x + 1) * xs;
+        t.p[2].y = (-t.p[2].y + 1) * ys;
         queue[queue_count++] = t;
     }
-    b3d_vec_t tp = { 0.0f, 0.5f, 0.0f, 1.0f };
-    b3d_vec_t tn = { 0.0f, 1.0f, 0.0f, 1.0f };
-    b3d_vec_t bp = { 0.0f, b3d_height, 0.0f, 1.0f };
-    b3d_vec_t bn = { 0.0f, -1.0f, 0.0f, 1.0f };
-    b3d_vec_t lp = { 0.5f, 0.0f, 0.0f, 1.0f };
-    b3d_vec_t ln = { 1.0f, 0.0f, 0.0f, 1.0f };
-    b3d_vec_t rp = { b3d_width, 0.0f, 0.0f, 1.0f };
-    b3d_vec_t rn = { -1.0f, 0.0f, 0.0f, 1.0f };
+    b3d_vec_t tp = { 0, 0.5f, 0, 1 };
+    b3d_vec_t tn = { 0, 1, 0, 1 };
+    b3d_vec_t bp = { 0, b3d_height, 0, 1 };
+    b3d_vec_t bn = { 0, -1, 0, 1 };
+    b3d_vec_t lp = { 0.5f, 0, 0, 1 };
+    b3d_vec_t ln = { 1, 0, 0, 1 };
+    b3d_vec_t rp = { b3d_width, 0, 0, 1 };
+    b3d_vec_t rn = { -1, 0, 0, 1 };
     int triangles_to_clip = queue_count;
     for (int p = 0; p < 4; ++p) {
         int n = 0;
@@ -350,12 +358,12 @@ void b3d_rotate_y(float angle) { b3d_model = b3d_mat_mul(b3d_model, b3d_mat_rot_
 void b3d_rotate_z(float angle) { b3d_model = b3d_mat_mul(b3d_model, b3d_mat_rot_z(angle)); }
 void b3d_translate(float x, float y, float z) { b3d_model = b3d_mat_mul(b3d_model, b3d_mat_trans(x, y, z)); }
 void b3d_scale(float x, float y, float z) { b3d_model = b3d_mat_mul(b3d_model, b3d_mat_scale(x, y, z)); }
-void b3d_set_fov(float fov_in_degrees) { b3d_proj = b3d_mat_proj(fov_in_degrees, b3d_height/(float)b3d_width, 0.1f, 100.0f); }
+void b3d_set_fov(float fov_in_degrees) { b3d_proj = b3d_mat_proj(fov_in_degrees, b3d_height/(float)b3d_width, B3D_NEAR_DISTANCE, B3D_FAR_DISTANCE); }
 
 void b3d_set_camera(float x, float y, float z, float yaw, float pitch, float roll) {
     b3d_camera = (b3d_vec_t){ x, y, z, 1 };
-    b3d_vec_t up = { 0.0f, 1.0f, 0.0f, 1.0f };
-    b3d_vec_t target = { 0.0f, 0.0f, 1.0f, 1.0f };
+    b3d_vec_t up = { 0, 1, 0, 1 };
+    b3d_vec_t target = { 0, 0, 1, 1 };
     up = b3d_mat_mul_vec(b3d_mat_rot_z(roll), up);
     target = b3d_mat_mul_vec(b3d_mat_rot_x(pitch), target);
     target = b3d_mat_mul_vec(b3d_mat_rot_y(yaw), target);
@@ -364,8 +372,8 @@ void b3d_set_camera(float x, float y, float z, float yaw, float pitch, float rol
 }
 
 void b3d_look_at(float x, float y, float z) {
-    b3d_vec_t up = { 0.0f, 1.0f, 0.0f, 1.0f };
-    b3d_view = b3d_mat_qinv(b3d_mat_point_at(b3d_camera, (b3d_vec_t){ x, y, z }, up));
+    b3d_vec_t up = { 0, 1, 0, 1 };
+    b3d_view = b3d_mat_qinv(b3d_mat_point_at(b3d_camera, (b3d_vec_t){ x, y, z, 1 }, up));
 }
 
 void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float fov) {
@@ -375,7 +383,7 @@ void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float
     b3d_depth = depth_buffer;
     b3d_clear();
     b3d_reset();
-    b3d_proj = b3d_mat_proj(fov, b3d_height/(float)b3d_width, 0.1f, 100.0f);
+    b3d_proj = b3d_mat_proj(fov, b3d_height/(float)b3d_width, B3D_NEAR_DISTANCE, B3D_FAR_DISTANCE);
     b3d_set_camera(0, 0, 0, 0, 0, 0);
 }
 
@@ -390,7 +398,7 @@ void b3d_clear() {
 This software is available under 2 licenses, choose whichever you prefer:
 
 ALTERNATIVE A - MIT License
-Copyright (c) 2020 Benedict Henshaw
+Copyright (c) 2022 Benedict Henshaw
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
