@@ -10,7 +10,7 @@
 */
 
 #include <time.h> // random number seed
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #define BOOTLEG3D_IMPLEMENTATION
 #include "bootleg3d.c"
 

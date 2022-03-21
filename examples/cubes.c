@@ -4,7 +4,7 @@
     scene until the framerate is around 60fps.
 */
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #define BOOTLEG3D_IMPLEMENTATION
 #include "bootleg3d.c"
 
