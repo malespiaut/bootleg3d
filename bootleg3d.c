@@ -393,6 +393,7 @@ int b3d_to_screen(float x, float y, float z, int * sx, int * sy) {
     // could be off screen, but the value is still usable (clamp or clip as needed)
     *sx = (int)(p.x + 0.5f);
     *sy = (int)(p.y + 0.5f);
+    return 1;
 }
 
 void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float fov) {
