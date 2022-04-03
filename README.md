@@ -18,7 +18,7 @@ A software renderer for very simple 3D graphics, in a single file, written in C9
 + Written in C99
 + Public domain / MIT licensed (you choose)
 
-Add `#define BOOTLEG3D_IMPLEMENTATION` before ONE of your includes to compile with the library. \
+Add `#define BOOTLEG3D_IMPLEMENTATION` before ONE of your includes to compile the library. \
 Add `#define BOOTLEG3D_NO_CULLING` to disable back-face culling.
 
 ## API
