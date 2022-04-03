@@ -10,14 +10,16 @@
 
 // Public API
 void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float fov);
-void b3d_clear();
-void b3d_reset();
+void b3d_clear(void);
+void b3d_reset(void);
 void b3d_translate(float x, float y, float z);
 void b3d_rotate_x(float angle);
 void b3d_rotate_y(float angle);
 void b3d_rotate_z(float angle);
 void b3d_scale(float x, float y, float z);
 void b3d_set_camera(float x, float y, float z, float yaw, float pitch, float roll);
+void b3d_look_at(float x, float y, float z);
+int b3d_to_screen(float x, float y, float z, int * sx, int * sy);
 void b3d_set_fov(float fov_in_degrees);
 void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, uint32_t c);
 
@@ -226,41 +228,42 @@ void b3d_rasterise(float ax, float ay, float az, float bx, float by, float bz, f
     ax = floorf(ax); bx = floorf(bx); cx = floorf(cx);
     ay = floorf(ay); by = floorf(by); cy = floorf(cy);
     float t = 0;
-    if (ay > by) t = ax, ax = bx, bx = t, t = ay, ay = by, by = t, t = az, az = bz, bz = t;
-    if (ay > cy) t = ax, ax = cx, cx = t, t = ay, ay = cy, cy = t, t = az, az = cz, cz = t;
-    if (by > cy) t = bx, bx = cx, cx = t, t = by, by = cy, cy = t, t = bz, bz = cz, cz = t;
+    if (ay > by) { t = ax; ax = bx; bx = t; t = ay; ay = by; by = t; t = az; az = bz; bz = t; }
+    if (ay > cy) { t = ax; ax = cx; cx = t; t = ay; ay = cy; cy = t; t = az; az = cz; cz = t; }
+    if (by > cy) { t = bx; bx = cx; cx = t; t = by; by = cy; cy = t; t = bz; bz = cz; cz = t; }
     float alpha = 0, alpha_step = 1 / (cy - ay);
     float beta  = 0, beta_step  = 1 / (by - ay);
-    for (int y = ay; y < by; y++) {
+    for (int y = (int)ay; y < by; y++) {
         float sx = ax + (cx - ax) * alpha;
         float sz = az + (cz - az) * alpha;
         float ex = ax + (bx - ax) * beta;
         float ez = az + (bz - az) * beta;
-        if (sx > ex) t = sx, sx = ex, ex = t, t = sz, sz = ez, ez = t;
+        if (sx > ex) { t = sx; sx = ex; ex = t; t = sz; sz = ez; ez = t; }
         float depth_step = (ez - sz) / (ex - sx);
         float d = sz;
-        int end = ex;
-        for (int x = sx; x < end; ++x) {
+        int end = (int)ex;
+        for (int x = (int)sx; x < end; ++x) {
             int p = x + y * b3d_width;
-            if (d < b3d_depth[p]) b3d_depth[p] = d, b3d_pixels[p] = c;
+            if (d < b3d_depth[p]) { b3d_depth[p] = d; b3d_pixels[p] = c; }
             d += depth_step;
         }
         alpha += alpha_step;
         beta += beta_step;
     }
-    beta = 0, beta_step = 1 / (cy - by);
-    for (int y = by; y < cy; y++) {
+    beta = 0;
+    beta_step = 1 / (cy - by);
+    for (int y = (int)by; y < cy; y++) {
         float sx = ax + (cx - ax) * alpha;
         float sz = az + (cz - az) * alpha;
         float ex = bx + (cx - bx) * beta;
         float ez = bz + (cz - bz) * beta;
-        if (sx > ex) t = sx, sx = ex, ex = t, t = sz, sz = ez, ez = t;
+        if (sx > ex) { t = sx; sx = ex; ex = t; t = sz; sz = ez; ez = t; }
         float depth_step = (ez - sz) / (ex - sx);
         float d = sz;
-        int end = ex;
-        for (int x = sx; x < end; ++x) {
+        int end = (int)ex;
+        for (int x = (int)sx; x < end; ++x) {
             int p = x + y * b3d_width;
-            if (d < b3d_depth[p]) b3d_depth[p] = d, b3d_pixels[p] = c;
+            if (d < b3d_depth[p]) { b3d_depth[p] = d; b3d_pixels[p] = c; }
             d += depth_step;
         }
         alpha += alpha_step;
@@ -303,8 +306,8 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
         t.p[0] = b3d_vec_div(t.p[0], t.p[0].w);
         t.p[1] = b3d_vec_div(t.p[1], t.p[1].w);
         t.p[2] = b3d_vec_div(t.p[2], t.p[2].w);
-        float xs = b3d_width / 2.0f;
-        float ys = b3d_height / 2.0f;
+        float xs = b3d_width / 2;
+        float ys = b3d_height / 2;
         t.p[0].x = ( t.p[0].x + 1) * xs;
         t.p[0].y = (-t.p[0].y + 1) * ys;
         t.p[1].x = ( t.p[1].x + 1) * xs;
@@ -328,7 +331,7 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
             b3d_triangle_t test = queue[0];
             --queue_count;
             --triangles_to_clip;
-            memmove(queue, queue + 1, sizeof(b3d_triangle_t) * queue_count);
+            memmove(queue, queue + 1, (int)sizeof(b3d_triangle_t) * queue_count);
             switch (p) {
                 case 0: n = b3d_clip_against_plane(tp, tn, test, clipped); break;
                 case 1: n = b3d_clip_against_plane(bp, bn, test, clipped); break;
@@ -342,11 +345,11 @@ void b3d_triangle(float ax, float ay, float az, float bx, float by, float bz, fl
         triangles_to_clip = queue_count;
     }
     for (int i = 0; i < queue_count; ++i) {
-        b3d_triangle_t * t = &queue[i];
+        b3d_triangle_t * triangle = &queue[i];
         b3d_rasterise(
-            t->p[0].x, t->p[0].y, t->p[0].z,
-            t->p[1].x, t->p[1].y, t->p[1].z,
-            t->p[2].x, t->p[2].y, t->p[2].z,
+            triangle->p[0].x, triangle->p[0].y, triangle->p[0].z,
+            triangle->p[1].x, triangle->p[1].y, triangle->p[1].z,
+            triangle->p[2].x, triangle->p[2].y, triangle->p[2].z,
             c
         );
     }
@@ -376,6 +379,22 @@ void b3d_look_at(float x, float y, float z) {
     b3d_view = b3d_mat_qinv(b3d_mat_point_at(b3d_camera, (b3d_vec_t){ x, y, z, 1 }, up));
 }
 
+int b3d_to_screen(float x, float y, float z, int * sx, int * sy) {
+    b3d_vec_t p = { x, y, z, 1 };
+    p = b3d_mat_mul_vec(b3d_view, p);
+    p = b3d_mat_mul_vec(b3d_proj, p);
+    p = b3d_vec_div(p, p.w);
+    if (p.w < 0) return 0; // behind camera
+    p = b3d_vec_div(p, p.w);
+    float mid_x = b3d_width / 2.0f;
+    float mid_y = b3d_height / 2.0f;
+    p.x = ( p.x + 1.0f) * mid_x;
+    p.y = (-p.y + 1.0f) * mid_y;
+    // could be off screen, but the value is still usable (clamp or clip as needed)
+    *sx = (int)(p.x + 0.5f);
+    *sy = (int)(p.y + 0.5f);
+}
+
 void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float fov) {
     b3d_width = w;
     b3d_height = h;
@@ -388,8 +407,8 @@ void b3d_init(uint32_t * pixel_buffer, float * depth_buffer, int w, int h, float
 }
 
 void b3d_clear() {
-    memset(b3d_depth, 0x7f, b3d_width * b3d_height * sizeof(b3d_depth[0]));
-    memset(b3d_pixels, 0, b3d_width * b3d_height * sizeof(b3d_pixels[0]));
+    memset(b3d_depth, 0x7f, b3d_width * b3d_height * (int)sizeof(b3d_depth[0]));
+    memset(b3d_pixels, 0, b3d_width * b3d_height * (int)sizeof(b3d_pixels[0]));
 }
 
 #endif
