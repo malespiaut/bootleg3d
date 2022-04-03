@@ -1,6 +1,6 @@
 # bootleg3D
 
-A software renderer for simple 3D graphics in a single file, written in C99. The main goal is to provide a simple API, and to keep the code base small. It might be particularly useful for retro graphics (N64, PS1, etc.) at lower resolutions with lower polygon counts. Some example programs are provided that use SDL2.
+A software renderer for very simple 3D graphics, in a single file, written in C99. The main goal is to provide an easy-to-use API, and to keep the code base small. Some example programs are provided that use SDL2.
 
 ![first-person camera demo](examples/fps.png)
 
@@ -18,7 +18,8 @@ A software renderer for simple 3D graphics in a single file, written in C99. The
 + Written in C99
 + Public domain / MIT licensed (you choose)
 
-Add `#define BOOTLEG3D_IMPLEMENTATION` before ONE of your includes to compile with the library. Add `#define BOOTLEG3D_NO_CULLING` to disable back-face culling.
+Add `#define BOOTLEG3D_IMPLEMENTATION` before ONE of your includes to compile with the library. \
+Add `#define BOOTLEG3D_NO_CULLING` to disable back-face culling.
 
 ## API
 
