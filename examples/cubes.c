@@ -95,7 +95,7 @@ int main() {
             next_update = SDL_GetTicks() + 250;
         }
         average_fps[average_index++] = 1.0 / ((SDL_GetPerformanceCounter() - time_stamp) / freq);
-        if (average_index > samples) {
+        if (average_index >= samples) {
             average_index = 0;
             have_enough_samples = 1;
         }
